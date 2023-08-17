@@ -19,6 +19,7 @@ specifiers:
   '@dcloudio/uni-mp-xhs': 3.0.0-alpha-3081220230802001
   '@dcloudio/uni-quickapp-webview': 3.0.0-alpha-3081220230802001
   '@dcloudio/uni-stacktracey': 3.0.0-alpha-3081220230802001
+  '@dcloudio/uni-ui': ^1.4.28
   '@dcloudio/vite-plugin-uni': 3.0.0-alpha-3081220230802001
   '@rushstack/eslint-patch': 1.1.4
   '@types/node': 18.11.9
@@ -58,6 +59,7 @@ dependencies:
   '@dcloudio/uni-mp-weixin': 3.0.0-alpha-3081220230802001_vue@3.2.45
   '@dcloudio/uni-mp-xhs': 3.0.0-alpha-3081220230802001_vue@3.2.45
   '@dcloudio/uni-quickapp-webview': 3.0.0-alpha-3081220230802001_vue@3.2.45
+  '@dcloudio/uni-ui': 1.4.28
   '@vue/runtime-core': 3.3.4
   pinia: 2.0.27_mgnvym7yiazkylwwogi5r767ue
   pinia-plugin-persistedstate: 3.2.0_pinia@2.0.27
@@ -1786,6 +1788,10 @@ packages:
       - supports-color
       - ts-node
       - vue
+    dev: false
+
+  /@dcloudio/uni-ui/1.4.28:
+    resolution: {integrity: sha512-e/lSbvR79KH9+d3D4ueNbvD6szigjO/5IyjBNmiTqaj0PTS324fBV3L6f3s1qpkYonM4rdOl000hVOcAg6Gh/A==}
     dev: false
 
   /@dcloudio/vite-plugin-uni/3.0.0-alpha-3081220230802001_vite@4.0.3+vue@3.2.45:
