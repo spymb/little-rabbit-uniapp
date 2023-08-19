@@ -7,6 +7,7 @@ import { onLoad } from '@dcloudio/uni-app'
 import CategoryPanel from './components/CategoryPanel.vue'
 import HotPanel from './components/HotPanel.vue'
 import type { XtxGuessInstance } from '@/types/components'
+import PageSkeleton from './components/PageSkeleton.vue'
 
 // 获取轮播图数据
 const bannerList = ref<BannerItem[]>([])
@@ -27,8 +28,12 @@ const getHomeHotData = async () => {
   hotList.value = res.result
 }
 
+const isLoading = ref<boolean>(false)
+
 onLoad(async () => {
+  isLoading.value = true
   await Promise.all([getHomeBannerData(), getHomeCategoryData(), getHomeHotData()])
+  isLoading.value = false
 })
 
 const guessRef = ref<XtxGuessInstance>()
@@ -57,22 +62,26 @@ const onRefresherrefresh = async () => {
 <template>
   <CustomNavBar />
 
-  <scroll-view
-    scroll-y
-    class="scroll-view"
-    @scrolltolower="onScrolltolower"
-    refresher-enabled
-    @refresherrefresh="onRefresherrefresh"
-    :refresher-triggered="isTriggered"
-  >
-    <XtxSwiper :list="bannerList" />
+  <PageSkeleton v-if="isLoading" />
 
-    <CategoryPanel :list="categoryList" />
+  <template v-else>
+    <scroll-view
+      scroll-y
+      class="scroll-view"
+      @scrolltolower="onScrolltolower"
+      refresher-enabled
+      @refresherrefresh="onRefresherrefresh"
+      :refresher-triggered="isTriggered"
+    >
+      <XtxSwiper :list="bannerList" />
 
-    <HotPanel :list="hotList" />
+      <CategoryPanel :list="categoryList" />
 
-    <XtxGuess ref="guessRef" />
-  </scroll-view>
+      <HotPanel :list="hotList" />
+
+      <XtxGuess ref="guessRef" />
+    </scroll-view>
+  </template>
 </template>
 
 <style lang="scss">
