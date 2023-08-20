@@ -1,5 +1,19 @@
 <script setup lang="ts">
-//
+import { getHomeBannerAPI } from '@/services/home'
+import type { BannerItem } from '@/types/home'
+import { onLoad } from '@dcloudio/uni-app'
+import { ref } from 'vue'
+
+// 获取轮播图数据
+const bannerList = ref<BannerItem[]>([])
+const getBannerData = async () => {
+  const res = await getHomeBannerAPI(2)
+  bannerList.value = res.result
+}
+
+onLoad(async () => {
+  await getBannerData()
+})
 </script>
 
 <template>
@@ -21,7 +35,7 @@
       <!-- 右侧：二级分类 -->
       <scroll-view class="secondary" scroll-y>
         <!-- 焦点图 -->
-        <XtxSwiper class="banner" :list="[]" />
+        <XtxSwiper class="banner" :list="bannerList" />
         <!-- 内容区域 -->
         <view class="panel" v-for="item in 3" :key="item">
           <view class="title">
