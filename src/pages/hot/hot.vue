@@ -9,16 +9,16 @@ const query = defineProps<{
   type: string
 }>()
 
-const hotMap = [
+const hotTypeInfoList = [
   { type: '1', title: '特惠推荐', url: '/hot/preference' },
   { type: '2', title: '爆款推荐', url: '/hot/inVogue' },
   { type: '3', title: '一站买全', url: '/hot/oneStop' },
   { type: '4', title: '新鲜好物', url: '/hot/new' },
 ]
 
-const currUrlMap = hotMap.find((v) => v.type === query.type)
+const curHotInfo = hotTypeInfoList.find((v) => v.type === query.type)
 // 动态设置标题
-uni.setNavigationBarTitle({ title: currUrlMap!.title })
+uni.setNavigationBarTitle({ title: curHotInfo!.title })
 
 // 推荐封面图
 const bannerPicture = ref('')
@@ -28,7 +28,7 @@ const subTypes = ref<(SubTypeItem & { finish?: boolean })[]>([])
 const activeIndex = ref(0)
 
 const getHotRecommendData = async () => {
-  const res = await getHotRecommendAPI(currUrlMap!.url, {
+  const res = await getHotRecommendAPI(curHotInfo!.url, {
     page: 1,
     pageSize: 10,
   })
@@ -39,6 +39,28 @@ const getHotRecommendData = async () => {
 onLoad(() => {
   getHotRecommendData()
 })
+
+const onScrolltolower = async () => {
+  // 获取当前选项
+  const curSubTypeInfo = subTypes.value[activeIndex.value]
+
+  // 分页条件
+  if (curSubTypeInfo.goodsItems.page < curSubTypeInfo.goodsItems.pages) {
+    curSubTypeInfo.goodsItems.page++
+  } else {
+    curSubTypeInfo.finish = true
+    return uni.showToast({ icon: 'none', title: '没有更多数据了~' })
+  }
+
+  // 调用API传参
+  const res = await getHotRecommendAPI(curHotInfo!.url, {
+    subType: curSubTypeInfo.id,
+    page: curSubTypeInfo.goodsItems.page,
+    pageSize: curSubTypeInfo.goodsItems.pageSize,
+  })
+  const newSubTypeInfo = res.result.subTypes[activeIndex.value]
+  curSubTypeInfo.goodsItems.items.push(...newSubTypeInfo.goodsItems.items)
+}
 </script>
 
 <template>
@@ -66,6 +88,7 @@ onLoad(() => {
       v-show="activeIndex === index"
       scroll-y
       class="scroll-view"
+      @scrolltolower="onScrolltolower"
     >
       <view class="goods">
         <navigator
