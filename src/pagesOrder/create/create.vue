@@ -1,5 +1,35 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { getMemberOrderPreAPI, getMemberOrderPreNowAPI } from '@/services/order'
+import type { OrderPreResult } from '@/types/order'
+import { onLoad } from '@dcloudio/uni-app'
+
+const query = defineProps<{
+  skuId?: string
+  count?: string
+}>()
+
+// 获取订单信息
+const orderPre = ref<OrderPreResult>()
+const getMemberOrderPreData = async () => {
+  // 是否有立即购买参数
+  if (query.count && query.skuId) {
+    // 调用立即购买 API
+    const res = await getMemberOrderPreNowAPI({
+      count: query.count,
+      skuId: query.skuId,
+    })
+    orderPre.value = res.result
+  } else {
+    // 调用预付订单 API
+    const res = await getMemberOrderPreAPI()
+    orderPre.value = res.result
+  }
+}
+
+onLoad(() => {
+  getMemberOrderPreData()
+})
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -47,24 +77,21 @@ const onChangeDelivery: UniHelper.SelectorPickerOnChange = (ev) => {
     <!-- 商品信息 -->
     <view class="goods">
       <navigator
-        v-for="item in 2"
-        :key="item"
-        :url="`/pages/goods/goods?id=1`"
+        v-for="item in orderPre?.goods"
+        :key="item.id"
+        :url="`/pages/goods/goods?id=${item.id}`"
         class="item"
         hover-class="none"
       >
-        <image
-          class="picture"
-          src="https://yanxuan-item.nosdn.127.net/c07edde1047fa1bd0b795bed136c2bb2.jpg"
-        />
+        <image class="picture" :src="item.picture" />
         <view class="meta">
-          <view class="name ellipsis"> ins风小碎花泡泡袖衬110-160cm </view>
-          <view class="attrs">藏青小花 130</view>
+          <view class="name ellipsis"> {{ item.name }} </view>
+          <view class="attrs">{{ item.attrsText }}</view>
           <view class="prices">
-            <view class="pay-price symbol">99.00</view>
-            <view class="price symbol">99.00</view>
+            <view class="pay-price symbol">{{ item.payPrice }}</view>
+            <view class="price symbol">{{ item.price }}</view>
           </view>
-          <view class="count">x5</view>
+          <view class="count">x{{ item.count }}</view>
         </view>
       </navigator>
     </view>
@@ -92,11 +119,11 @@ const onChangeDelivery: UniHelper.SelectorPickerOnChange = (ev) => {
     <view class="settlement">
       <view class="item">
         <text class="text">商品总价: </text>
-        <text class="number symbol">495.00</text>
+        <text class="number symbol">{{ orderPre?.summary.totalPrice.toFixed(2) }}</text>
       </view>
       <view class="item">
         <text class="text">运费: </text>
-        <text class="number symbol">5.00</text>
+        <text class="number symbol">{{ orderPre?.summary.postFee.toFixed(2) }}</text>
       </view>
     </view>
   </scroll-view>
@@ -104,7 +131,7 @@ const onChangeDelivery: UniHelper.SelectorPickerOnChange = (ev) => {
   <!-- 吸底工具栏 -->
   <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
     <view class="total-pay symbol">
-      <text class="number">99.00</text>
+      <text class="number">{{ orderPre?.summary.totalPayPrice.toFixed(2) }}</text>
     </view>
     <view class="button" :class="{ disabled: true }"> 提交订单 </view>
   </view>
