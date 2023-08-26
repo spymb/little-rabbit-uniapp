@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { useGuessList } from '@/composables'
-import { onReady } from '@dcloudio/uni-app'
+import { getMemberOrderByIdAPI } from '@/services/order'
+import type { OrderResult } from '@/types/order'
+import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
+import { OrderState, orderStateList } from '@/services/constants'
 
 // 获取页面参数
 const query = defineProps<{
@@ -44,6 +47,18 @@ onReady(() => {
     startScrollOffset: 0,
     endScrollOffset: 50,
   })
+})
+
+// 获取订单详情
+const order = ref<OrderResult>({} as OrderResult)
+const getMemberOrderByIdData = async () => {
+  const res = await getMemberOrderByIdAPI(query.id)
+  order.value = res.result
+  console.log(order.value)
+}
+
+onLoad(() => {
+  getMemberOrderByIdData()
 })
 
 // 弹出层组件
@@ -91,7 +106,7 @@ const { guessRef, onScrolltolower } = useGuessList()
     id="scroller"
     @scrolltolower="onScrolltolower"
   >
-    <template v-if="true">
+    <template v-if="order.orderState === OrderState.DaiFuKuan">
       <!-- 订单状态 -->
       <view class="overview" :style="{ paddingTop: safeAreaInsets!.top + 20 + 'px' }">
         <!-- 待付款状态:展示去支付按钮和倒计时 -->
@@ -107,7 +122,7 @@ const { guessRef, onScrolltolower } = useGuessList()
         <!-- 其他订单状态:展示再次购买按钮 -->
         <template v-else>
           <!-- 订单状态文字 -->
-          <view class="status"> 待付款 </view>
+          <view class="status"> {{ orderStateList[order.orderState].text }} </view>
           <view class="button-group">
             <navigator
               class="button"
